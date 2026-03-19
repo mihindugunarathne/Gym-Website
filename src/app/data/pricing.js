@@ -1,0 +1,45 @@
+export const pricingPlans = [
+  {
+    id: 1,
+    name: "Basic",
+    price: "LKR 5,900",
+    period: "/mo",
+    features: [
+      "Gym access (weekdays)",
+      "2 group classes/week",
+      "Locker room access",
+      "Fitness assessment",
+    ],
+    cta: "Get Started",
+  },
+  {
+    id: 2,
+    name: "Pro",
+    price: "LKR 11,900",
+    period: "/mo",
+    features: [
+      "Unlimited gym access",
+      "Unlimited group classes",
+      "1 PT session/month",
+      "Nutrition consultation",
+      "Progress tracking",
+    ],
+    featured: true,
+    cta: "Join Now",
+  },
+  {
+    id: 3,
+    name: "Elite",
+    price: "LKR 18,900",
+    period: "/mo",
+    features: [
+      "24/7 gym access",
+      "Unlimited group classes",
+      "4 PT sessions/month",
+      "Custom meal plan",
+      "Priority booking",
+      "Merchandise discount",
+    ],
+    cta: "Get Elite",
+  },
+];
