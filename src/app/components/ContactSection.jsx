@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import emailjs from "@emailjs/browser";
 import contactBg from "@/app/assets/contact-bg.jpg";
 import SectionTitle from "@/app/components/ui/SectionTitle";
 
@@ -48,9 +49,12 @@ function validate(formData) {
 }
 
 export default function ContactSection() {
+  const formRef = useRef(null);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,18 +62,35 @@ export default function ContactSection() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
+    if (sendError) setSendError(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate(formData);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    setSubmitted(true);
-    setFormData({ name: "", email: "", phone: "", message: "" });
-    setErrors({});
+
+    setSending(true);
+    setSendError(null);
+
+    try {
+      await emailjs.sendForm(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+        formRef.current,
+        { publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY }
+      );
+      setSubmitted(true);
+      setFormData({ name: "", email: "", phone: "", message: "" });
+      setErrors({});
+    } catch {
+      setSendError("Something went wrong. Please try again or contact us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -154,14 +175,14 @@ export default function ContactSection() {
                   Thank you for reaching out. We&apos;ll get back to you within 24 hours.
                 </p>
                 <button
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => { setSubmitted(false); setSendError(null); }}
                   className="bg-gold hover:bg-gold-hover text-dark font-heading font-bold px-8 py-3 text-sm tracking-widest uppercase transition-colors"
                 >
                   Send Another
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="bg-dark p-8 space-y-5">
+              <form ref={formRef} onSubmit={handleSubmit} className="bg-dark p-8 space-y-5">
                 <h3 className="font-heading font-bold text-xl text-off-white uppercase tracking-wider mb-1">
                   Send Us A Message
                 </h3>
@@ -227,11 +248,16 @@ export default function ContactSection() {
                   )}
                 </div>
 
+                {sendError && (
+                  <p className="text-red-400 font-body text-xs text-center">{sendError}</p>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-gold hover:bg-gold-hover text-dark font-heading font-bold py-4 text-sm tracking-widest uppercase transition-colors duration-200"
+                  disabled={sending}
+                  className="w-full bg-gold hover:bg-gold-hover disabled:opacity-60 disabled:cursor-not-allowed text-dark font-heading font-bold py-4 text-sm tracking-widest uppercase transition-colors duration-200"
                 >
-                  Send Message
+                  {sending ? "Sending…" : "Send Message"}
                 </button>
               </form>
             )}
