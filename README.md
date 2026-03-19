@@ -56,4 +56,4 @@ npm start
 
 ## Live Link
 
-[https://your-live-url.vercel.app](https://your-live-url.vercel.app)
+[https://fitlifegyym.netlify.app/](https://fitlifegyym.netlify.app/)
